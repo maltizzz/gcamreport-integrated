@@ -1,6 +1,6 @@
 # Execute the local gcamreport package and load v8.2 or v9.1 data before launching the UI.
 gcamreport_run <- function(
-  test_ = FALSE,
+  test_ = TRUE,
   gcamreport_version_ = "v8.2",
   gcam_file_version_ = "v8.2",
   db_path_ = paste0("C:/Users/pjhan/Desktop/GCAM/gcam-v", sub("^v", "", gcam_file_version_), "-Windows-Release-Package/output"),
@@ -13,9 +13,9 @@ gcamreport_run <- function(
 ) {
   # Work in the package root so devtools::load_all() can find DESCRIPTION.
   if (isTRUE(test_)) {
-    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport_temp")
+    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport-integrated/gcamreport-fork")
   } else {
-    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport")
+    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport-integrated/gcamreport")
   }
 
   devtools::load_all(".", reset = TRUE)
