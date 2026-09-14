@@ -1,0 +1,9 @@
+[submodule "gcamreport-fork"]
+	path = gcamreport-fork
+	url = https://github.com/maltizzz/gcamreport.git
+[submodule "gcamreport-kaist"]
+	path = gcamreport-kaist
+	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
+[submodule "gcamreport-temp"]
+	path = gcamreport-temp
+	url = https://github.com/maltizzz/gcamreport_temp.git
