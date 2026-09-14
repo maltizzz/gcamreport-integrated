@@ -1,0 +1,13 @@
+# R session and project state
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+
+# Local package/build output
+*.Rcheck/
+*.tar.gz
+
+# Local test output
+*.log
+*.rds
