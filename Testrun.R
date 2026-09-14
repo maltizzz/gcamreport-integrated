@@ -1,42 +1,9 @@
 # Execute the local gcamreport package and load v8.2 or v9.1 data before launching the UI.
-
-find_package_root <- function(start = getwd(), package = "gcamreport-fork") {
-  current <- normalizePath(start, winslash = "/", mustWork = TRUE)
-
-  repeat {
-    package_roots <- c(current, file.path(current, package))
-    package_roots <- package_roots[
-      basename(package_roots) == package &
-        file.exists(file.path(package_roots, "DESCRIPTION"))
-    ]
-    if (length(package_roots) > 0) {
-      return(package_roots[[1]])
-    }
-
-    parent <- dirname(current)
-    if (identical(parent, current)) {
-      break
-    }
-    current <- parent
-  }
-
-  package_roots <- list.dirs(start, recursive = TRUE, full.names = TRUE)
-  package_roots <- package_roots[
-    basename(package_roots) == package &
-      file.exists(file.path(package_roots, "DESCRIPTION"))
-  ]
-  if (length(package_roots) > 0) {
-    return(package_roots[[1]])
-  }
-
-  stop("Could not find the local gcamreport package from: ", start)
-}
-
 gcamreport_run <- function(
-  test_ = TRUE,
+  test_ = FALSE,
   gcamreport_version_ = "v8.2",
   gcam_file_version_ = "v8.2",
-  db_path_ = paste0(".Desktop/GCAM/gcam-v", sub("^v", "", gcam_file_version_), "-Windows-Release-Package/output"),
+  db_path_ = paste0("C:/Users/pjhan/Desktop/GCAM/gcam-v", sub("^v", "", gcam_file_version_), "-Windows-Release-Package/output"),
   db_name_ = "database_basexdb",
   prj_name_ = paste0("gcam_v", sub("^v", "", gcam_file_version_), "_report.dat"),
   scen_ = "Reference",
@@ -45,11 +12,10 @@ gcamreport_run <- function(
   Rdata_path_ = paste0(db_path_, "/", "gcam_v", sub("^v", "", gcam_file_version_), "_report_standardized.RData")
 ) {
   # Work in the package root so devtools::load_all() can find DESCRIPTION.
-
   if (isTRUE(test_)) {
-    setwd(find_package_root(package = "gcamreport-fork"))
+    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport_temp")
   } else {
-    setwd(find_package_root(package = "gcamreport-original")) # deprecated
+    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport")
   }
 
   devtools::load_all(".", reset = TRUE)
@@ -95,10 +61,36 @@ gcamreport_run <- function(
 }
 
 ##################### TEST ####################################
+## 1) Run if "official" & "Test" version of gcamreport can run 8.2 [Succeed]
+#gcamreport_run(test_ = TRUE, gcamreport_version_ = "v8.2", gcam_file_version_ = "v8.2", run_type_ = "ui")
+#gcamreport_run(test_ = TRUE, gcamreport_version_ = "v9.1", gcam_file_version_ = "v9.1", run_type_ = "ui")
 
 
+## 2) Run if "official" version can generate 9.1 reports in 8.2 settings
+#gcamreport_run(test_ = FALSE, gcamreport_version_ = "v8.2", gcam_file_version_ = "v9.1", run_type_ = "report")
 
+# a) Following erros happen
+# Error in left_join_strict(., get(paste("ag_price_map", GCAM_version, sep = "_"),  : 
+#   Error: Some rows in the left dataset do not have matching keys in the right dataset. Type `left_join_strict_details` to see the full log. Some of the rows that the mapping ag_price_map_v8.2 miss are:
+# # A tibble: 10 × 1
+#    sector                         
+#    <chr>                          
+#  1 resid clothes dryers modern_d1 
+#  2 resid clothes dryers modern_d10
+#  3 resid clothes dryers modern_d2 
+#  4 resid clothes dryers modern_d3 
+#  5 resid clothes dryers modern_d4 
+#  6 resid clothes dryers modern_d5 
+#  7 resid clothes dryers modern_d6 
+#  8 resid clothes dryers modern_d7 
+#  9 resid clothes dryers modern_d8 
+# 10 resid clothes dryers modern_d9 
+# In addition: Warning messages:
+# 1: In create_project(db_path = db_path, db_name = db_name, prj_name = prj_name,  :
+#   CO2 prices query is empty!
+# 2: In rgcam::mergeProjects(prj_name, list(prj, prj_tmp), clobber = FALSE,  :
+#   Skipping data in Reference / CO2 emissions by region as clobber is false.
 
-## Validating the Test versions
+## 3) Final test run
 #gcamreport_run(test_ = TRUE, gcamreport_version_ = "v9.1", gcam_file_version_ = "v9.1", run_type_ = "report")
 gcamreport_run(test_ = TRUE, gcamreport_version_ = "v9.1", gcam_file_version_ = "v9.1", run_type_ = "ui")
