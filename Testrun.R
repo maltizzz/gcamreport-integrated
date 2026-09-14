@@ -1,9 +1,42 @@
 # Execute the local gcamreport package and load v8.2 or v9.1 data before launching the UI.
+
+find_package_root <- function(start = getwd(), package = "gcamreport-fork") {
+  current <- normalizePath(start, winslash = "/", mustWork = TRUE)
+
+  repeat {
+    package_roots <- c(current, file.path(current, package))
+    package_roots <- package_roots[
+      basename(package_roots) == package &
+        file.exists(file.path(package_roots, "DESCRIPTION"))
+    ]
+    if (length(package_roots) > 0) {
+      return(package_roots[[1]])
+    }
+
+    parent <- dirname(current)
+    if (identical(parent, current)) {
+      break
+    }
+    current <- parent
+  }
+
+  package_roots <- list.dirs(start, recursive = TRUE, full.names = TRUE)
+  package_roots <- package_roots[
+    basename(package_roots) == package &
+      file.exists(file.path(package_roots, "DESCRIPTION"))
+  ]
+  if (length(package_roots) > 0) {
+    return(package_roots[[1]])
+  }
+
+  stop("Could not find the local gcamreport package from: ", start)
+}
+
 gcamreport_run <- function(
-  test_ = FALSE,
+  test_ = TRUE,
   gcamreport_version_ = "v8.2",
   gcam_file_version_ = "v8.2",
-  db_path_ = paste0("C:/Users/pjhan/Desktop/GCAM/gcam-v", sub("^v", "", gcam_file_version_), "-Windows-Release-Package/output"),
+  db_path_ = paste0(".Desktop/GCAM/gcam-v", sub("^v", "", gcam_file_version_), "-Windows-Release-Package/output"),
   db_name_ = "database_basexdb",
   prj_name_ = paste0("gcam_v", sub("^v", "", gcam_file_version_), "_report.dat"),
   scen_ = "Reference",
@@ -12,10 +45,11 @@ gcamreport_run <- function(
   Rdata_path_ = paste0(db_path_, "/", "gcam_v", sub("^v", "", gcam_file_version_), "_report_standardized.RData")
 ) {
   # Work in the package root so devtools::load_all() can find DESCRIPTION.
+
   if (isTRUE(test_)) {
-    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport-integrated/gcamreport-fork")
+    setwd(find_package_root(package = "gcamreport-fork"))
   } else {
-    setwd("C:/Users/pjhan/Desktop/git/iam_models/GCAM/gcamreport-integrated/gcamreport-original")
+    setwd(find_package_root(package = "gcamreport-original")) # deprecated
   }
 
   devtools::load_all(".", reset = TRUE)
