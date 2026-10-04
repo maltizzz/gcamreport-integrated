@@ -1,10 +1,24 @@
-[submodule "gcamreport-fork"]
-	path = gcamreport-fork
+# Submodule layout (see README.md "Repository layout"):
+#   gcamreport-core/original  - upstream bc3LC/gcamreport (reference only)
+#   gcamreport-core/forked    - maltizzz/gcamreport fork (v9.1 integration work)
+#   gcamreport-kaist/original - GCAM-KAIST/gcamreport-kaist main (reference only)
+#   gcamreport-kaist/forked   - pj-kaist: personal working copy of the KAIST repo;
+#                               pushes go to maltizzz/pj-kaist, never to GCAM-KAIST main
+#   gcamreport-temp           - scratch checkout used during the v9.1 work
+[submodule "gcamreport-core/original"]
+	path = gcamreport-core/original
+	url = https://github.com/bc3LC/gcamreport.git
+	branch = gcam-core
+[submodule "gcamreport-core/forked"]
+	path = gcamreport-core/forked
 	url = https://github.com/maltizzz/gcamreport.git
-[submodule "gcamreport-kaist"]
-	path = gcamreport-kaist
+	branch = gcam-core
+[submodule "gcamreport-kaist/original"]
+	path = gcamreport-kaist/original
 	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
-[submodule "gcamreport-temp"]
-	path = gcamreport-temp
-	url = https://github.com/maltizzz/gcamreport_temp.git
+	branch = main
+[submodule "gcamreport-kaist/forked"]
+	path = gcamreport-kaist/forked
+	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
+	branch = pj-kaist
 
