@@ -12,7 +12,7 @@
 [submodule "gcamreport-core/forked"]
 	path = gcamreport-core/forked
 	url = https://github.com/maltizzz/gcamreport.git
-	branch = gcam-core
+	branch = pj-kaist
 [submodule "gcamreport-kaist/original"]
 	path = gcamreport-kaist/original
 	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
