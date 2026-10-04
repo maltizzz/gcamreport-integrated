@@ -6,30 +6,38 @@ keeping the related variants available for comparison and testing.
 
 ## Repository layout
 
-| Directory | Remote | Purpose |
+Each package lives twice: an `original` checkout that tracks the reference
+remote and is never edited, and a `forked` checkout where the work happens.
+
+| Directory | Remote / branch | Purpose |
 | --- | --- | --- |
-| [`gcamreport-fork`](gcamreport-fork) | [maltizzz/gcamreport](https://github.com/maltizzz/gcamreport) | Main report package. This is where the integrated v9.1 changes live. |
-| [`gcamreport-kaist`](gcamreport-kaist) | [GCAM-KAIST/gcamreport-kaist](https://github.com/GCAM-KAIST/gcamreport-kaist) | KAIST report variant. |
-| [`gcamreport-temp`](gcamreport-temp) | [maltizzz/gcamreport_temp](https://github.com/maltizzz/gcamreport_temp) | Temporary development and comparison checkout used during the v9.1 work. |
+| [`gcamreport-core/original`](gcamreport-core/original) | [bc3LC/gcamreport](https://github.com/bc3LC/gcamreport) `gcam-core` | Upstream package, reference only. |
+| [`gcamreport-core/forked`](gcamreport-core/forked) | [maltizzz/gcamreport](https://github.com/maltizzz/gcamreport) `pj-kaist` | Fork used for the v9.1 integration and the pull requests to upstream. |
+| [`gcamreport-kaist/original`](gcamreport-kaist/original) | [GCAM-KAIST/gcamreport-kaist](https://github.com/GCAM-KAIST/gcamreport-kaist) `main` | KAIST team repository, reference only. |
+| [`gcamreport-kaist/forked`](gcamreport-kaist/forked) | GCAM-KAIST/gcamreport-kaist `pj-kaist` | Personal working copy of the KAIST repository. Its `R/`, `inst/` and `data/` are synced from `gcamreport-core/forked`; the KAIST pipeline lives in [`kaist-pj/`](gcamreport-kaist/forked/kaist-pj/README.md). Pushing to the KAIST `main` from this checkout is disabled. |
+| [`gcamreport-temp`](gcamreport-temp) | [maltizzz/gcamreport_temp](https://github.com/maltizzz/gcamreport_temp) `main` | Scratch checkout used during the v9.1 work and the KAIST u0909 debugging. Kept for its logs under `docs/`, `debug/` and `tests/`. |
 
-Each directory is a Git submodule. Run commands for a package from inside that
-package's directory, not from this repository's root.
+Each directory is a Git submodule (see [.gitmodules](.gitmodules)). Run
+commands for a package from inside that package's directory, not from this
+repository's root. `Testrun.R` at the root is a local, gitignored launcher for
+the Shiny UI and still points at the old `forked/gcamreport` layout.
 
-## Clone and initialize
+## Status (October 2026)
 
-```bash
-git clone https://github.com/maltizzz/gcamreport-integrated.git
-cd gcamreport-integrated
-git submodule update --init --recursive
-```
+The v9.1 work described below was merged into upstream `bc3LC/gcamreport`
+(`gcam-core`, PR #90 from `pj-kaist`). `gcamreport-core/forked` is at the same
+commit as `gcamreport-core/original`, and `gcamreport-kaist/forked` carries the
+same `R/` and `inst/` (plus the GCAM9.1 mapping, query and template folders
+that `gcamreport-kaist/original` does not have yet). All five checkouts report
+package version 1.0.3; `available_GCAM_versions` includes `v9.1`.
 
-The nested submodule definitions are in [.gitmodules](.gitmodules). If a folder
-appears with an unclickable arrow on a web page, check that this file has been
-committed and pushed in the repository that contains the nested submodule.
+Current KAIST work is the six-step KMIP pipeline in
+`gcamreport-kaist/forked/kaist-pj/`, run against the two GCAM v9.1 u0909
+scenario databases. See its [README](gcamreport-kaist/forked/kaist-pj/README.md).
 
 ## GCAM v9.1 support
 
-The main package in `gcamreport-fork` supports:
+The package (upstream `gcam-core`, and both `forked` checkouts) supports:
 
 - GCAM v7.0, v7.1, v7.2, v8.2, and v9.1
 - GCAMEurope 7.2 and 8.7
@@ -60,8 +68,7 @@ package data for:
 - New transport, final-energy, water, emissions, and refrigerant combinations
 - GCAM v9.1-specific data objects and version-selection logic
 
-The changes are concentrated in `gcamreport-fork/inst/extdata` and its package
-data. The report-generation and query code did not require a broad rewrite.
+The changes are concentrated in `inst/extdata` and its package data. The report-generation and query code did not require a broad rewrite.
 
 ## Validation
 
@@ -83,29 +90,30 @@ full validation run.
 
 A second review against GCAM v9.1's own `Main_queries.xml` found problems that
 the first validation run did not catch, because they produced wrong or missing
-values rather than errors. All paths below are inside `gcamreport-fork`.
+values rather than errors. All paths below are inside `gcamreport-core/forked`
+(and, since the merge, in upstream as well).
 
 - **Hydrogen query names.** GCAM v9.1 renamed `H2 wholesale dispensing` and
   `H2 retail dispensing` to `H2 LDV`, `H2 MHDV`, and `LH2`. The v9.1 query file
   still used the old names, so on-site hydrogen production and hydrogen prices
   to transport were missing. Five queries in
-  [`queries_gcamreport_general.xml`](gcamreport-fork/inst/extdata/queries/GCAM9.1/queries_gcamreport_general.xml)
+  [`queries_gcamreport_general.xml`](gcamreport-core/forked/inst/extdata/queries/GCAM9.1/queries_gcamreport_general.xml)
   now use the new names.
 - **Transport units.** GCAM v9.1 reports transport service in billion pass-km
   and ton-km; v8.2 used million. The package assumed million, so transport
   energy service, vehicle sales, and vehicle stock were 1000 times too small. A
   new helper, `harmonize_trn_service_units()` in
-  [`R/functions.R`](gcamreport-fork/R/functions.R), converts billion to million
+  [`R/functions.R`](gcamreport-core/forked/R/functions.R), converts billion to million
   before these calculations. Older versions are unaffected.
 - **On-site hydrogen mapping.** After the query fix, on-site hydrogen
   production (`onsite production` under `H2 LDV`, `H2 MHDV`, `LH2`) had no
   mapping row and stopped the report. Six rows were added to
-  [`capacity_map.csv`](gcamreport-fork/inst/extdata/mappings/GCAM9.1/capacity_map.csv),
+  [`capacity_map.csv`](gcamreport-core/forked/inst/extdata/mappings/GCAM9.1/capacity_map.csv),
   following the old forecourt rows: electrolysis to `Secondary Energy|Hydrogen|Other`,
   natural gas steam reforming to `Gas` and `Fossil`.
 - **Building energy prices.** The updated `en_price_map.csv` introduced 53
   new price variables, mostly building end uses, with no matching rows in
-  [`en_demand_price_map.csv`](gcamreport-fork/inst/extdata/mappings/GCAM9.1/en_demand_price_map.csv),
+  [`en_demand_price_map.csv`](gcamreport-core/forked/inst/extdata/mappings/GCAM9.1/en_demand_price_map.csv),
   which stopped the report. The rows were added using the existing rule: the
   weighting variable is the price name without `Price|`.
 - **Untracked v9.1 query files.** The `.gitignore` rule `queries_*` matched the
@@ -142,9 +150,23 @@ The v9.1 work followed this process:
 5. Run a full-region report and fix any remaining strict-join gaps.
 6. Verify report output and launch the Shiny UI.
 
-The temporary checkout contains the detailed development history in
-[`gcamreport-temp/README.md`](gcamreport-temp/README.md) and
-[`gcamreport-temp/development_log/ERROR_LOG.md`](gcamreport-temp/development_log/ERROR_LOG.md).
+The temporary checkout contains the detailed development history:
+
+- [`gcamreport-temp/docs/CLAUDE_DEVELOPMENT_LOG.md`](gcamreport-temp/docs/CLAUDE_DEVELOPMENT_LOG.md):
+  chronological log of the v9.1 mapping work and its validation.
+- [`gcamreport-temp/debug/ERROR_LOG.md`](gcamreport-temp/debug/ERROR_LOG.md):
+  the first v9.1 mapping error and the `v9.1` vs `v.9.1` key pitfall.
+- [`gcamreport-temp/debug/case1_chemical_feedback_Sector/Error_Log/README.md`](gcamreport-temp/debug/case1_chemical_feedback_Sector/Error_Log/README.md):
+  the eight fixes needed for the KAIST u0909 scenarios (`chemical feedstocks`
+  sequestration rows, KAIST-only markets, the empty-`ignore` CO2 price bug).
+  These are re-applied at runtime by `kaist-pj/core/functions.R`
+  (`kaist_overrides`) and `kaist-pj/core/gcamreport_patch.R` in
+  `gcamreport-kaist/forked`.
+- [`gcamreport-temp/tests/README.md`](gcamreport-temp/tests/README.md) and
+  [`gcamreport-temp/tests/log/README.md`](gcamreport-temp/tests/log/README.md):
+  how the testthat suite is run and why five tests failed on 2026-09-14.
+- [`gcamreport-temp/R/FUNCTIONS.md`](gcamreport-temp/R/FUNCTIONS.md): a
+  function-by-function catalog of the package's `R/` folder.
 
 ## Working with submodules
 
@@ -158,16 +180,19 @@ Commit changes in the repository where they were made, then update the parent
 repository's gitlink:
 
 ```bash
-cd gcamreport-fork
+cd gcamreport-kaist/forked
 git add <files>
 git commit -m "Describe the package change"
-git push
+git push origin pj-kaist
 
-cd ..
-git add gcamreport-fork
-git commit -m "Update gcamreport-fork"
+cd ../..
+git add gcamreport-kaist/forked
+git commit -m "Update gcamreport-kaist/forked"
 git push
 ```
+
+The `original` checkouts are never committed to; update them with
+`git pull` inside the submodule and then record the new gitlink here.
 
 The parent repository tracks only each submodule's commit, not the files inside
 that submodule.
