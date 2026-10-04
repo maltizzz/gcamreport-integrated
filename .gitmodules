@@ -4,7 +4,7 @@
 #   gcamreport-kaist/original - GCAM-KAIST/gcamreport-kaist main (reference only)
 #   gcamreport-kaist/forked   - pj-kaist: personal working copy of the KAIST repo;
 #                               pushes go to maltizzz/pj-kaist, never to GCAM-KAIST main
-#   gcamreport-temp           - scratch checkout used during the v9.1 work
+#   gcamreport-temp           - scratch checkout used during the v9.1 work#
 [submodule "gcamreport-core/original"]
 	path = gcamreport-core/original
 	url = https://github.com/bc3LC/gcamreport.git
