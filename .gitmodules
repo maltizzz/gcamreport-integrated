@@ -13,6 +13,10 @@
 	path = gcamreport-core/forked
 	url = https://github.com/maltizzz/gcamreport.git
 	branch = pj-kaist
+[submodule "gcamreport-core/temp"]
+	path = gcamreport-core/temp
+	url = https://github.com/GCAM-KAIST/gcamreport.git
+	branch = gcam-core
 [submodule "gcamreport-kaist/original"]
 	path = gcamreport-kaist/original
 	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
@@ -21,3 +25,4 @@
 	path = gcamreport-kaist/forked
 	url = https://github.com/GCAM-KAIST/gcamreport-kaist.git
 	branch = pj-kaist
+
