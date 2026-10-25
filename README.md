@@ -168,6 +168,38 @@ The temporary checkout contains the detailed development history:
 - [`gcamreport-temp/R/FUNCTIONS.md`](gcamreport-temp/R/FUNCTIONS.md): a
   function-by-function catalog of the package's `R/` folder.
 
+## Never push to KAIST `main` from `forked` (October 2026 incident)
+
+**What happened.** In `gcamreport-kaist/forked`, the local `pj-kaist` branch
+was tracking `origin/main` instead of `origin/pj-kaist`. A `git pull` merged
+`main` into `pj-kaist` as intended, but the following `git push` sent that
+merge to `main`. `main` was restored by force-pushing it back to its previous
+commit; the merge now lives only on `pj-kaist`.
+
+**How to sync `main` into `pj-kaist` safely.** Always spell out the push target:
+
+```bash
+cd gcamreport-kaist/forked
+git branch -vv                      # must show [origin/pj-kaist]
+git fetch origin
+git merge --no-ff origin/main
+git push origin pj-kaist:pj-kaist   # explicit target, cannot hit main
+```
+
+Or open a pull request on GitHub with base `pj-kaist` and compare `main`, then
+`git pull` locally. Nothing is pushed from your machine.
+
+**Safeties in place.**
+
+- `pj-kaist` tracks `origin/pj-kaist`. If `git branch -vv` ever shows
+  `origin/main`, run `git branch --set-upstream-to=origin/pj-kaist pj-kaist`.
+- A GitHub ruleset on `main` requires a pull request and blocks force pushes.
+- Optional local guards: a `pre-push` hook that refuses any push to `main`, and
+  `git config remote.origin.push refs/heads/pj-kaist:refs/heads/pj-kaist` so a
+  bare `git push` can only reach `pj-kaist`.
+- Do not use the VS Code Sync button right after a merge without checking the
+  branch it names in the confirmation dialog.
+
 ## Working with submodules
 
 Check the state of every nested repository with:
